@@ -1,0 +1,4 @@
+time from symptom onset to death = 17.3 (https://github.com/midas-network/COVID-19/tree/master/parameter_estimates/2019_novel_coronavirus)
+incubation time = 5.6
+time from symptom onset to recovery = 22 https://www.imperial.ac.uk/media/imperial-college/medicine/sph/ide/gida-fellowships/Imperial-College-2019-nCoV-severity-10-02-2020.pdf
+time from sympton onset to reporting = 5.1 https://medrxiv.org/content/early/2020/02/02/2020.01.29.20019547.abstract
