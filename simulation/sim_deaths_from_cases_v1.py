@@ -24,7 +24,9 @@ while cases <= pop*0.9999 and day < 1000:
     if day % 10 == 0:
         print(f'{day=}; {cases=}')
 
-    new_cases = int(np.round((cases * daily_factor - cases) * (pop - cases) / pop))
+    uninfected_factor = (pop - cases) / pop
+    daily_factor_corrected = (1 + (daily_factor - 1) * uninfected_factor)
+    new_cases = int(np.round(cases * daily_factor_corrected - cases))
     cases += new_cases
     new_deaths = np.random.binomial(new_cases, p)
     new_death_times = np.round(np.random.normal(mean_time, sigma_time, new_deaths)).astype('int')
@@ -55,7 +57,7 @@ log_linear = [{
     ]}
 ]
 
-fig = px.line(x='day', y='new_cases', data_frame=df)
+fig = px.line(x='day', y='cases', data_frame=df)
 fig.update_layout(updatemenus=log_linear)
 # fig.update_layout(yaxis_type="log")
 # fig.update_layout(yaxis={"type": "log"})
