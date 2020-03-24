@@ -48,17 +48,11 @@ df['cumsum_deaths'] = df['deaths'].cumsum(skipna=False)
 #%%
 
 import plotly.express as px
+import plot_functions as pf
 
-log_linear = [{
-    "type": "buttons",
-    "buttons": [
-        {"label": "linear", "method": "relayout", "args": ["yaxis", {"type": "linear"}]},
-        {"label": "log", "method": "relayout", "args": ["yaxis", {"type": "log"}]},
-    ]}
-]
 
 fig = px.line(x='day', y='cases', data_frame=df)
-fig.update_layout(updatemenus=log_linear)
+fig.update_layout(updatemenus=pf.get_log_linear_buttons())
 # fig.update_layout(yaxis_type="log")
 # fig.update_layout(yaxis={"type": "log"})
 fig.show()
@@ -69,7 +63,7 @@ fig.show()
 import plotly.express as px
 
 fig = px.line(x='day', y='deaths', data_frame=df)
-fig.update_layout(updatemenus=log_linear)
+fig.update_layout(updatemenus=pf.get_log_linear_buttons())
 fig.show()
 
 
@@ -80,5 +74,5 @@ import plotly.express as px
 
 fig = px.line(x='day', y='cumsum_deaths', data_frame=df)
 fig.add_scatter(x=df['day'], y=df['cumsum_cases'], mode='lines')
-fig.update_layout(updatemenus=log_linear)
+fig.update_layout(updatemenus=pf.get_log_linear_buttons())
 fig.show()
