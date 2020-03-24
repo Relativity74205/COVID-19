@@ -2,6 +2,22 @@ import numpy as np
 import pandas as pd
 
 
+def get_csse_data(value_name: str, min_cases: int, rolling_window: int) -> pd.DataFrame:
+    path_dict = {'cases':
+                     'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
+                 'deaths': 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
+                 }
+    path = path_dict[value_name]
+
+    df = pd.read_csv(path)
+    df = df.drop(['Lat', 'Long', 'Province/State'], axis=1)
+    df = df.rename(columns={'Country/Region': 'country'})
+    df_tidy = tidy_data(df, value_name='deaths', rolling_window=rolling_window)
+    df_tidy_filtered = filter_tidy_data(df_tidy=df_tidy, min_cases=min_cases, value_name=value_name)
+
+    return df_tidy_filtered
+
+
 def tidy_data(df: pd.DataFrame, value_name: str, rolling_window: int) -> pd.DataFrame:
     df_cleaned: pd.DataFrame = (df
                                 .groupby('country')[df.columns[1:]]
