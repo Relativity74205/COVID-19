@@ -1,7 +1,7 @@
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-from CSSE_data_analysis import main_functions as mf
+from app import main_functions as mf
 import plot_functions as pf
 
 value_name = 'deaths'

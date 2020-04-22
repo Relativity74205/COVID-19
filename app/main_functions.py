@@ -3,16 +3,15 @@ import pandas as pd
 
 
 def get_csse_data(value_name: str, min_cases: int, rolling_window: int) -> pd.DataFrame:
-    path_dict = {'cases':
-                     '../data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
-                 'deaths':
-                     '../data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
+    base_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/'
+    path_dict = {'cases': 'time_series_covid19_confirmed_global.csv',
+                 'deaths': 'time_series_covid19_deaths_global.csv'
                  }
-    path = path_dict[value_name]
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(f'{base_url}{path_dict[value_name]}')
     df = df.drop(['Lat', 'Long', 'Province/State'], axis=1)
-    df = df.rename(columns={'Country/Region': 'country'})
+    df = df.rename(columns={'Country/Region': 'country',
+                            '3/21/202': '3/21/20'})
     df_tidy = tidy_data(df, value_name=value_name, rolling_window=rolling_window)
     df_tidy_filtered = filter_tidy_data(df_tidy=df_tidy, min_cases=min_cases, value_name=value_name)
 
@@ -55,12 +54,13 @@ def calc_rolling_mean(df: pd.DataFrame, group_by_col: str, rolling_col: str, rol
 def calc_increase(df: pd.DataFrame, rolling_window: int, value_name: str) -> pd.DataFrame:
     df[f'shifted_{value_name}'] = df.groupby('country')[value_name].shift(periods=1).fillna(0)
     df[f'shifted_log_{value_name}'] = df.groupby('country')[f'log_{value_name}'].shift(periods=1).fillna(0)
-    df[f'delta_{value_name}'] = df[value_name] - df[f'shifted_{value_name}']
     df[f'delta_log_{value_name}'] = df[f'log_{value_name}'] - df[f'shifted_log_{value_name}']
-    # df['relative_increase'] = df['delta_cases'] / df['cases']
-    # df['relative_increase'] = df['relative_increase'].fillna(0)
-    # df = calc_rolling_mean(df, 'country', 'relative_increase')
+    df[f'delta_{value_name}'] = df[value_name] - df[f'shifted_{value_name}']
+    df[f'shifted_delta_{value_name}'] = df.groupby('country')[f'delta_{value_name}'].shift(periods=1).fillna(0)
+    df[f'factor_delta_increase_{value_name}'] = df[f'delta_{value_name}'] / df[f'shifted_delta_{value_name}']
+    df[f'factor_delta_increase_{value_name}'] = df[f'factor_delta_increase_{value_name}'].fillna(0).replace(np.inf, 0)
     df = calc_rolling_mean(df, 'country', f'delta_log_{value_name}', rolling_window)
+    df = calc_rolling_mean(df, 'country', f'factor_delta_increase_{value_name}', rolling_window)
     df[f'factor_{value_name}_increase_smoothed'] = np.exp(df[f'delta_log_{value_name}_smoothed'])
 
     return df
